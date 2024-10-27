@@ -8,13 +8,13 @@ L.Icon.Default.mergeOptions({
     shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 })
 
-interface ChangeMapView {
+interface IChangeMapView {
     position: {
         latitude: number
         longitude: number
     }
 }
-function ChangeMapView({ position }: ChangeMapView) {
+function ChangeMapView({ position }: IChangeMapView) {
     const map = useMap()
 
     map.setView([position.latitude, position.longitude], map.getZoom())
