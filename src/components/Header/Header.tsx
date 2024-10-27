@@ -1,4 +1,4 @@
-import { Input } from "../Input"
+import { Input } from "../Input/Input"
 
 export function Header() {
     return (

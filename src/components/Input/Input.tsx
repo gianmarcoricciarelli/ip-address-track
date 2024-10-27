@@ -1,4 +1,4 @@
-import { AppContext, IAppContext } from "../contexts/AppContext"
+import { AppContext, IAppContext } from "../../contexts/AppContext"
 import { ChangeEvent, Context, useContext, useEffect, useState } from "react"
 
 export function Input() {
