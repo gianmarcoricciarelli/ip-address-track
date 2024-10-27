@@ -1,12 +1,25 @@
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
-import { MapContainer, Marker, TileLayer } from "react-leaflet"
+import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet"
 
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
     iconUrl: require("leaflet/dist/images/marker-icon.png"),
     shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 })
+
+interface ChangeMapView {
+    position: {
+        latitude: number
+        longitude: number
+    }
+}
+function ChangeMapView({ position }: ChangeMapView) {
+    const map = useMap()
+
+    map.setView([position.latitude, position.longitude], map.getZoom())
+    return null
+}
 
 interface IMap {
     latitude: string
@@ -26,6 +39,15 @@ export function Map({ latitude, longitude }: IMap) {
             />
             <Marker
                 position={{ lat: Number(latitude), lng: Number(longitude) }}
+                eventHandlers={{
+                    update: () => console.log("update"),
+                }}
+            />
+            <ChangeMapView
+                position={{
+                    latitude: Number(latitude),
+                    longitude: Number(longitude),
+                }}
             />
         </MapContainer>
     )

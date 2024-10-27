@@ -4,31 +4,19 @@ import { ChangeEvent, Context, useContext, useEffect, useState } from "react"
 export function Input() {
     const { setData } = useContext(AppContext as Context<IAppContext>)
 
-    const [ipTyped, setIpTyped] = useState<string>("")
+    const [ipTyped, setIpTyped] = useState<string>("79.51.26.153")
 
     function handleTypingOnInput(event: ChangeEvent<HTMLInputElement>) {
         setIpTyped(event.target.value)
     }
 
-    function handleButtonClick() {
-        handleSearch(undefined)
-    }
+    async function handleButtonClick() {
+        const apiUrl = process.env.REACT_APP_API_URL
+        const apiKey = process.env.REACT_APP_API_KEY
 
-    async function handleSearch(event: KeyboardEvent | undefined) {
-        let keyPressed: string
-
-        if (event) {
-            keyPressed = event.code
-        } else {
-            keyPressed = "Enter"
-        }
-
-        if (keyPressed === "Enter") {
-            const apiUrl = process.env.REACT_APP_API_URL
-            const apiKey = process.env.REACT_APP_API_KEY
-
+        if (ipTyped !== "") {
             const response = await fetch(
-                `${apiUrl}?apiKey=${apiKey}&ip=79.51.26.153`,
+                `${apiUrl}?apiKey=${apiKey}&ip=${ipTyped}`,
                 { method: "GET" },
             )
 
@@ -40,17 +28,7 @@ export function Input() {
     }
 
     useEffect(() => {
-        document.addEventListener(
-            "keypress",
-            async (event) => await handleSearch(event),
-        )
-
-        return () => {
-            document.removeEventListener(
-                "keypress",
-                async (event) => await handleSearch(event),
-            )
-        }
+        handleButtonClick()
     }, [])
 
     return (
