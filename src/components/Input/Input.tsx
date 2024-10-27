@@ -1,35 +1,72 @@
 import { AppContext, IAppContext } from "../../contexts/AppContext"
-import { ChangeEvent, Context, useContext, useEffect, useState } from "react"
+import {
+    ChangeEvent,
+    Context,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from "react"
 
 export function Input() {
     const { setData } = useContext(AppContext as Context<IAppContext>)
 
-    const [ipTyped, setIpTyped] = useState<string>("79.51.26.153")
+    const [firstRender, setFirstRender] = useState(true)
+    const [ipTyped, setIpTyped] = useState<string>("8.8.8.8")
 
     function handleTypingOnInput(event: ChangeEvent<HTMLInputElement>) {
         setIpTyped(event.target.value)
     }
 
-    async function handleButtonClick() {
-        const apiUrl = process.env.REACT_APP_API_URL
-        const apiKey = process.env.REACT_APP_API_KEY
-
-        if (ipTyped !== "") {
-            const response = await fetch(
-                `${apiUrl}?apiKey=${apiKey}&ip=${ipTyped}`,
-                { method: "GET" },
-            )
-
-            if (response.ok) {
-                const data = await response.json()
-                setData(data)
-            }
-        }
+    function handleButtonClick() {
+        handleSearch(undefined)
     }
 
+    const handleSearch = useCallback(
+        async (event: KeyboardEvent | undefined, ip?: string) => {
+            let keyPressed: string
+
+            if (event) {
+                keyPressed = event.code
+            } else {
+                keyPressed = "Enter"
+            }
+
+            if (keyPressed === "Enter") {
+                const apiUrl = process.env.REACT_APP_API_URL
+                const apiKey = process.env.REACT_APP_API_KEY
+
+                if (ipTyped !== "" && keyPressed === "Enter") {
+                    const response = await fetch(
+                        `${apiUrl}?apiKey=${apiKey}&ip=${ip ? ip : ipTyped}`,
+                        { method: "GET" },
+                    )
+
+                    if (response.ok) {
+                        const data = await response.json()
+                        setData(data)
+                    }
+                }
+            }
+        },
+        [ipTyped, setData],
+    )
+
     useEffect(() => {
-        handleButtonClick()
-    }, [])
+        const keyPressedHandler = async (event: KeyboardEvent) =>
+            await handleSearch(event)
+
+        document.addEventListener("keypress", keyPressedHandler)
+
+        if (firstRender) {
+            handleSearch(undefined, process.env.REACT_APP_IP)
+            setFirstRender(false)
+        }
+
+        return () => {
+            document.removeEventListener("keypress", keyPressedHandler)
+        }
+    }, [firstRender, handleSearch, ipTyped])
 
     return (
         <div className="flex w-[40%] justify-center">
